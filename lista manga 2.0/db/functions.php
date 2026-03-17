@@ -293,15 +293,15 @@ function getMangaStranieriMancanti($orderBy = 'titolo', $search = '', $categoria
     return $stmt->fetchAll();
 }
 
-function addMangaStraniero($titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $volumi_posseduti, $prezzo_medio = 0.00, $stato = 'completo', $da_prendere_subito = false, $categorie = null, $rarita = null) {
+function addMangaStraniero($titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $volumi_posseduti, $prezzo_medio = 0.00, $stato = 'completo', $da_prendere_subito = false, $categorie = null) {
     global $pdo;
     try {
         $pdo->beginTransaction();
         
         $categorie_json = $categorie ? json_encode($categorie) : null;
         
-        $stmt = $pdo->prepare("INSERT INTO manga_stranieri (titolo, immagine_url, data_pubblicazione, volumi_totali, volumi_posseduti, prezzo_medio, stato, da_prendere_subito, categorie, rarita) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $volumi_posseduti, $prezzo_medio, $stato, $da_prendere_subito, $categorie_json, $rarita]);
+        $stmt = $pdo->prepare("INSERT INTO manga_stranieri (titolo, immagine_url, data_pubblicazione, volumi_totali, volumi_posseduti, prezzo_medio, stato, da_prendere_subito, categorie) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $volumi_posseduti, $prezzo_medio, $stato, $da_prendere_subito, $categorie_json]);
         
         $serie_id = $pdo->lastInsertId();
         
@@ -333,15 +333,15 @@ function getVolumiPossedatiStranieri($serie_id) {
     return $stmt->fetchAll();
 }
 
-function updateMangaStraniero($id, $titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato = null, $da_prendere_subito = null, $categorie = null, $rarita = null) {
+function updateMangaStraniero($id, $titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato = null, $da_prendere_subito = null, $categorie = null) {
     global $pdo;
     try {
         $pdo->beginTransaction();
         
         $categorie_json = $categorie ? json_encode($categorie) : null;
         
-        $stmt = $pdo->prepare("UPDATE manga_stranieri SET titolo = ?, immagine_url = ?, data_pubblicazione = ?, volumi_totali = ?, prezzo_medio = ?, stato = ?, da_prendere_subito = ?, categorie = ?, rarita = ? WHERE id = ?");
-        $stmt->execute([$titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato, $da_prendere_subito, $categorie_json, $rarita, $id]);
+        $stmt = $pdo->prepare("UPDATE manga_stranieri SET titolo = ?, immagine_url = ?, data_pubblicazione = ?, volumi_totali = ?, prezzo_medio = ?, stato = ?, da_prendere_subito = ?, categorie = ? WHERE id = ?");
+        $stmt->execute([$titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato, $da_prendere_subito, $categorie_json, $id]);
         
         $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM volumi_posseduti_stranieri WHERE serie_id = ?");
         $stmt->execute([$id]);
@@ -1055,15 +1055,15 @@ function addDuelMasters($nome, $immagine_url, $data_pubblicazione, $prezzo, $is_
 }
 
 // Funzioni per aggiungere elementi aggiornate
-function addSerie($titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $volumi_posseduti, $prezzo_medio = 0.00, $stato = 'completo', $da_prendere_subito = false, $categorie = null, $rarita = null) {
+function addSerie($titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $volumi_posseduti, $prezzo_medio = 0.00, $stato = 'completo', $da_prendere_subito = false, $categorie = null) {
     global $pdo;
     try {
         $pdo->beginTransaction();
         
         $categorie_json = $categorie ? json_encode($categorie) : null;
         
-        $stmt = $pdo->prepare("INSERT INTO serie_manga (titolo, immagine_url, data_pubblicazione, volumi_totali, volumi_posseduti, prezzo_medio, stato, da_prendere_subito, categorie, rarita) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $volumi_posseduti, $prezzo_medio, $stato, $da_prendere_subito, $categorie_json, $rarita]);
+        $stmt = $pdo->prepare("INSERT INTO serie_manga (titolo, immagine_url, data_pubblicazione, volumi_totali, volumi_posseduti, prezzo_medio, stato, da_prendere_subito, categorie) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $volumi_posseduti, $prezzo_medio, $stato, $da_prendere_subito, $categorie_json]);
         
         $serie_id = $pdo->lastInsertId();
         
@@ -1157,7 +1157,7 @@ function trasformaMangaInStraniero($serie_id) {
         }
         
         // 2. Inserisci in manga_stranieri
-        $stmt = $pdo->prepare("INSERT INTO manga_stranieri (titolo, immagine_url, data_pubblicazione, volumi_totali, volumi_posseduti, prezzo_medio, stato, da_prendere_subito, priorita, categorie, rarita) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO manga_stranieri (titolo, immagine_url, data_pubblicazione, volumi_totali, volumi_posseduti, prezzo_medio, stato, da_prendere_subito, priorita, categorie) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $serie['titolo'],
             $serie['immagine_url'],
@@ -1168,8 +1168,7 @@ function trasformaMangaInStraniero($serie_id) {
             $serie['stato'],
             $serie['da_prendere_subito'],
             $serie['priorita'],
-            $serie['categorie'],
-            $serie['rarita']
+            $serie['categorie']
         ]);
         
         $new_id = $pdo->lastInsertId();
@@ -1217,7 +1216,7 @@ function trasformaMangaInNormale($manga_id) {
         }
         
         // 2. Inserisci in serie_manga
-        $stmt = $pdo->prepare("INSERT INTO serie_manga (titolo, immagine_url, data_pubblicazione, volumi_totali, volumi_posseduti, prezzo_medio, stato, da_prendere_subito, priorita, categorie, rarita) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO serie_manga (titolo, immagine_url, data_pubblicazione, volumi_totali, volumi_posseduti, prezzo_medio, stato, da_prendere_subito, priorita, categorie) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $manga['titolo'],
             $manga['immagine_url'],
@@ -1228,8 +1227,7 @@ function trasformaMangaInNormale($manga_id) {
             $manga['stato'],
             $manga['da_prendere_subito'],
             $manga['priorita'],
-            $manga['categorie'],
-            $manga['rarita']
+            $manga['categorie']
         ]);
         
         $new_id = $pdo->lastInsertId();
@@ -1263,15 +1261,15 @@ function trasformaMangaInNormale($manga_id) {
 }
 
 // Funzioni per aggiornare elementi
-function updateSerie($id, $titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato = null, $da_prendere_subito = null, $categorie = null, $rarita = null) {
+function updateSerie($id, $titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato = null, $da_prendere_subito = null, $categorie = null) {
     global $pdo;
     try {
         $pdo->beginTransaction();
         
         $categorie_json = $categorie ? json_encode($categorie) : null;
         
-        $stmt = $pdo->prepare("UPDATE serie_manga SET titolo = ?, immagine_url = ?, data_pubblicazione = ?, volumi_totali = ?, prezzo_medio = ?, stato = ?, da_prendere_subito = ?, categorie = ?, rarita = ? WHERE id = ?");
-        $stmt->execute([$titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato, $da_prendere_subito, $categorie_json, $rarita, $id]);
+        $stmt = $pdo->prepare("UPDATE serie_manga SET titolo = ?, immagine_url = ?, data_pubblicazione = ?, volumi_totali = ?, prezzo_medio = ?, stato = ?, da_prendere_subito = ?, categorie = ? WHERE id = ?");
+        $stmt->execute([$titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato, $da_prendere_subito, $categorie_json, $id]);
         
         $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM volumi_posseduti WHERE serie_id = ?");
         $stmt->execute([$id]);
@@ -1447,45 +1445,5 @@ function getItemById($table, $id) {
     $stmt = $pdo->prepare("SELECT * FROM $table WHERE id = ?");
     $stmt->execute([$id]);
     return $stmt->fetch();
-}
-
-function updateRarita($serie_id, $rarita) {
-    global $pdo;
-    
-    // Valida rarità (1-5 o NULL)
-    if ($rarita !== null && ($rarita < 1 || $rarita > 5)) {
-        return false;
-    }
-    
-    $stmt = $pdo->prepare("UPDATE serie_manga SET rarita = ? WHERE id = ?");
-    return $stmt->execute([$rarita, $serie_id]);
-}
-
-/**
- * Ottiene il nome descrittivo della rarità
- */
-function getRaritaName($rarita) {
-    $names = [
-        1 => 'Comune',
-        2 => 'Non Comune',
-        3 => 'Raro',
-        4 => 'Epico',
-        5 => 'Leggendario'
-    ];
-    return $names[$rarita] ?? 'Nessuna';
-}
-
-/**
- * Ottiene il colore esadecimale della rarità
- */
-function getRaritaColor($rarita) {
-    $colors = [
-        1 => '#27ae60',  // Verde
-        2 => '#2ecc71',  // Verde chiaro
-        3 => '#f1c40f',  // Giallo
-        4 => '#e67e22',  // Arancione
-        5 => '#e74c3c'   // Rosso
-    ];
-    return $colors[$rarita] ?? '#95a5a6';
 }
 ?>

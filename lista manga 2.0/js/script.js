@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
   //window.scrollTo(0, 0);
-  initRaritaSelectors();
-
   const links = document.querySelectorAll("nav a");
   const sections = document.querySelectorAll(".section");
   const modal = document.getElementById("serieModal");
@@ -177,7 +175,6 @@ function handleTipoChange() {
   const noteGroup = document.getElementById("note-group");
   const uploadImageGroup = document.getElementById("upload-image-group");
   const immagineUrlGroup = document.getElementById("immagine_url")?.closest('.form-group');
-  const raritaGroup = document.getElementById("rarita-group");
   
   const volumiTotaliInput = document.getElementById('volumi_totali');
   const volumiPossedutilInput = document.getElementById('volumi_posseduti');
@@ -186,7 +183,7 @@ function handleTipoChange() {
   // Reset all groups
   [costoGroup, possedutoGroup, prezzoGroup, codiceGroup, boxGroup, linksGroup, 
      statoGroup, categorieGroup, daPrendereGroup, autoreGroup, tipoMediaGroup, 
-     costoViniliGroup, mangaStranieroGroup, numeroMangaGroup, noteGroup, raritaGroup, uploadImageGroup].forEach(group => {
+     costoViniliGroup, mangaStranieroGroup, numeroMangaGroup, noteGroup, uploadImageGroup].forEach(group => {
         if (group) group.classList.add("hidden");
     });
 
@@ -215,7 +212,6 @@ function handleTipoChange() {
       categorieGroup?.classList.remove("hidden");
       daPrendereGroup?.classList.remove("hidden");
       mangaStranieroGroup?.classList.remove("hidden");
-      raritaGroup?.classList.remove("hidden");
       if (volumiTotaliInput) volumiTotaliInput.removeAttribute('readonly');
       if (nomeInput) nomeInput.setAttribute('name', 'titolo');
       if (prezzoInput) prezzoInput.setAttribute('name', 'prezzo_medio');
@@ -535,13 +531,6 @@ function populateMangaStranieroEditModal(manga) {
             categorieStr = '';
         }
     }
-
-    let starsHtml = '';
-    for (let i = 1; i <= 5; i++) {
-        const isActive = manga.rarita && manga.rarita >= i;
-        const classes = isActive ? `star active rarita-${manga.rarita}` : 'star';
-        starsHtml += `<span class="${classes}" data-value="${i}">★</span>`;
-    }
     
     form.innerHTML = `
         <input type="hidden" name="action" value="updateMangaStraniero">
@@ -594,18 +583,6 @@ function populateMangaStranieroEditModal(manga) {
             </div>
         </div>
 
-        <!-- Campo Rarità -->
-        <div class="form-group">
-            <label>⭐ Rarità:</label>
-            <div class="rarita-selector" id="rarita-selector-edit-straniero" data-input="edit_rarita_straniero">
-                ${starsHtml}
-            </div>
-            <input type="hidden" id="edit_rarita_straniero" name="rarita" value="${manga.rarita || ''}">
-            <small class="rarita-current">
-                ${manga.rarita ? `Rarità: <strong style="color: ${getRaritaColor(manga.rarita)}">${getRaritaName(manga.rarita)}</strong>` : 'Nessuna rarità impostata'}
-            </small>
-        </div>
-
         <div class="form-group transform-group">
             <div class="checkbox-group">
                 <input type="checkbox" id="transform_to_normale" name="transform_to_normale">
@@ -627,12 +604,6 @@ function populateMangaStranieroEditModal(manga) {
     const newForm = form.cloneNode(true);
     form.parentNode.replaceChild(newForm, form);
     newForm.addEventListener("submit", handleMangaStranieroUpdate);
-
-    // Inizializza il selettore di rarità nel modal
-    const editSelector = newForm.querySelector('#rarita-selector-edit-straniero');
-    if (editSelector) {
-        initSingleRaritaSelector(editSelector, 'edit_rarita_straniero');
-    }
 }
 
 function handleMangaStranieroUpdate(e) {
@@ -667,7 +638,7 @@ function handleMangaStranieroUpdate(e) {
             }
         })
         .catch(error => {
-            console.error("Error: ", error);
+            console.error("Error:", error);
             alert("Errore nella trasformazione del manga");
         });
     } else {
@@ -682,11 +653,11 @@ function handleMangaStranieroUpdate(e) {
                 alert("Manga straniero aggiornato!");
                 location.reload();
             } else {
-                alert("Errore: figa" + data.message);   //questo
+                alert("Errore: " + data.message);
             }
         })
         .catch(error => {
-            console.error("Error: ", error);
+            console.error("Error:", error);
             alert("Errore nell'aggiornamento");
         });
     }
@@ -701,11 +672,11 @@ function handleMangaStranieroUpdate(e) {
             alert("Manga straniero aggiornato!");
             location.reload();
         } else {
-            alert("Errore: Sucayy " + data.message);   //questo
+            alert("Errore: " + data.message);
         }
     })
     .catch(error => {
-        console.error("Error: ", error);
+        console.error("Error:", error);
         alert("Errore nell'aggiornamento");
     });
 }
@@ -1559,13 +1530,6 @@ function populateSerieEditModal(serie) {
       categorieStr = '';
     }
   }
-
-  let starsHtml = '';
-    for (let i = 1; i <= 5; i++) {
-        const isActive = serie.rarita && serie.rarita >= i;
-        const classes = isActive ? `star active rarita-${serie.rarita}` : 'star';
-        starsHtml += `<span class="${classes}" data-value="${i}">★</span>`;
-    }
   
   form.innerHTML = `
     <input type="hidden" name="action" value="updateSerie">
@@ -1618,18 +1582,6 @@ function populateSerieEditModal(serie) {
       </div>
     </div>
 
-    <!-- Campo Rarità -->
-    <div class="form-group">
-        <label>⭐ Rarità:</label>
-        <div class="rarita-selector" id="rarita-selector-edit" data-input="edit_rarita">
-            ${starsHtml}
-        </div>
-        <input type="hidden" id="edit_rarita" name="rarita" value="${serie.rarita || ''}">
-        <small class="rarita-current">
-            ${serie.rarita ? `Rarità: <strong style="color: ${getRaritaColor(serie.rarita)}">${getRaritaName(serie.rarita)}</strong>` : 'Nessuna rarità impostata'}
-        </small>
-    </div>
-
     <div class="form-group transform-group">
         <div class="checkbox-group">
             <input type="checkbox" id="transform_to_straniero" name="transform_to_straniero">
@@ -1651,11 +1603,6 @@ function populateSerieEditModal(serie) {
   const newForm = form.cloneNode(true);
   form.parentNode.replaceChild(newForm, form);
   newForm.addEventListener("submit", handleSerieUpdate);
-
-  const editSelector = newForm.querySelector('#rarita-selector-edit');
-    if (editSelector) {
-        initSingleRaritaSelector(editSelector, 'edit_rarita');
-    }
 }
 
 // Populate variant edit modal
@@ -2075,141 +2022,5 @@ function confirmRemove(id, tipo, nome) {
     document.body.appendChild(form);
     form.submit();
   }
-}
-
-function initRaritaSelectors() {
-    // Selettore nel form aggiungi
-    const addSelector = document.getElementById('rarita-selector-add');
-    if (addSelector) {
-        initSingleRaritaSelector(addSelector, 'rarita_value');
-    }
-    
-    // Gestione click su stelle (anche per modali dinamici)
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('star')) {
-            const selector = e.target.closest('.rarita-selector');
-            if (selector) {
-                const inputId = selector.getAttribute('data-input');
-                handleStarClick(e.target, selector, inputId);
-            }
-        }
-    });
-}
-
-/**
- * Inizializza un singolo selettore di rarità
- */
-function initSingleRaritaSelector(selector, inputId) {
-    selector.setAttribute('data-input', inputId);
-    
-    const stars = selector.querySelectorAll('.star');
-    stars.forEach(star => {
-        // Hover effect
-        star.addEventListener('mouseenter', function() {
-            const value = parseInt(this.getAttribute('data-value'));
-            highlightStars(selector, value, true);
-        });
-    });
-    
-    selector.addEventListener('mouseleave', function() {
-        const input = document.getElementById(inputId);
-        const currentValue = input ? parseInt(input.value) || 0 : 0;
-        highlightStars(selector, currentValue, false);
-    });
-}
-
-/**
- * Gestisce il click su una stella
- */
-function handleStarClick(star, selector, inputId) {
-    const value = parseInt(star.getAttribute('data-value'));
-    const input = document.getElementById(inputId);
-    
-    if (!input) return;
-    
-    // Se clicco sulla stessa stella già selezionata, resetto
-    const currentValue = parseInt(input.value) || 0;
-    const newValue = (currentValue === value) ? 0 : value;
-    
-    input.value = newValue || '';
-    highlightStars(selector, newValue, false);
-    
-    // Aggiorna testo rarità attuale se esiste
-    const raritaCurrent = selector.parentElement.querySelector('.rarita-current');
-    if (raritaCurrent) {
-        if (newValue > 0) {
-            raritaCurrent.innerHTML = `Rarità: <strong style="color: ${getRaritaColor(newValue)}">${getRaritaName(newValue)}</strong>`;
-        } else {
-            raritaCurrent.innerHTML = 'Nessuna rarità impostata';
-        }
-    }
-}
-
-/**
- * Evidenzia le stelle in base al valore
- */
-function highlightStars(selector, value, isHover) {
-  
-    const stars = selector.querySelectorAll('.star');
-    
-    stars.forEach((star, index) => {
-        const starValue = index + 1;
-        star.classList.remove('active', 'hover', 'rarita-1', 'rarita-2', 'rarita-3', 'rarita-4', 'rarita-5');
-        
-        if (starValue <= value) {
-            star.classList.add(isHover ? 'hover' : 'active');
-            star.classList.add(`rarita-${value}`);
-        }
-    });
-    
-}
-
-/**
- * Ottiene il colore in base alla rarità
- */
-function getRaritaColor(rarita) {
-    const colors = {
-        1: '#27ae60',  // Verde
-        2: '#2ecc71',  // Verde chiaro
-        3: '#f1c40f',  // Giallo
-        4: '#e67e22',  // Arancione
-        5: '#e74c3c'   // Rosso
-    };
-    return colors[rarita] || '#95a5a6';
-}
-
-/**
- * Ottiene il nome della rarità
- */
-function getRaritaName(rarita) {
-    const names = {
-        1: 'Comune',
-        2: 'Non Comune',
-        3: 'Raro',
-        4: 'Molto Raro',
-        5: 'Leggendario'
-    };
-    return names[rarita] || 'Nessuna';
-}
-
-/**
- * Aggiorna la rarità di una serie tramite AJAX
- */
-function updateSerieRarita(serieId, rarita) {
-    const formData = new FormData();
-    formData.append('serie_id', serieId);
-    formData.append('rarita', rarita || '');
-    
-    return fetch(`${getAjaxPath()}?action=updateRarita`, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.success) {
-            throw new Error(data.message || 'Errore aggiornamento rarità');
-        }
-        return data;
-    });
 }
 

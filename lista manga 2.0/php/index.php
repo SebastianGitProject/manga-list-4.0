@@ -48,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $volumi_posseduti = (int)($_POST['volumi_posseduti'] ?? 0);
                         $stato = sanitizeInput($_POST['stato'] ?? 'completo');
                         $da_prendere_subito = isset($_POST['da_prendere_subito']) ? 1 : 0;
-                        $rarita = isset($_POST['rarita']) && $_POST['rarita'] !== '' ? (int)$_POST['rarita'] : null;
 
                         // Gestione categorie
                         $categorie_input = sanitizeInput($_POST['categorie'] ?? '');
@@ -58,9 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         error_log("POST prezzo_medio: " . ($_POST['prezzo_medio'] ?? 'NON PRESENTE'));
 
                         if ($manga_straniero) {
-                            $success = addMangaStraniero($nome, $immagine_url, $data, $volumi_totali, $volumi_posseduti, $prezzo, $stato, $da_prendere_subito, $categorie, $rarita);
+                            $success = addMangaStraniero($nome, $immagine_url, $data, $volumi_totali, $volumi_posseduti, $prezzo, $stato, $da_prendere_subito, $categorie);
                         } else {
-                            $success = addSerie($nome, $immagine_url, $data, $volumi_totali, $volumi_posseduti, $prezzo, $stato, $da_prendere_subito, $categorie, $rarita);
+                            $success = addSerie($nome, $immagine_url, $data, $volumi_totali, $volumi_posseduti, $prezzo, $stato, $da_prendere_subito, $categorie);
                         }
                         break;
                         
@@ -183,8 +182,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $message = ucfirst(str_replace('_', ' ', $tipo)) . ' aggiunto con successo!';
                     $messageType = 'success';
                 } else if (empty($message)) {
-                    echo "<script>console.log(" . json_encode($message) . ");</script>";
-                    echo "<script>console.log(" . json_encode($rarita) . ");</script>";
                     $message = 'Errore nell\'aggiunta. Il nome potrebbe già esistere.';
                     $messageType = 'error';
                 }
@@ -254,7 +251,7 @@ $countYugiohMancanti = countYugiohMancanti();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collezione Manga & More</title>
-    <link rel="stylesheet" href="../css/styles.css?version=24">
+    <link rel="stylesheet" href="../css/styles.css?version=11">
     <link rel="stylesheet" href="../css/auth.css">
     <script src="../js/auth.js"></script>
     <style>
@@ -540,17 +537,6 @@ $countYugiohMancanti = countYugiohMancanti();
                                         <?php echo "Stato: " . ucfirst(str_replace('_', ' ', $item['stato'])); ?>
                                     </span>
                                 <?php endif; ?>
-
-                                <!-- Badge Rarità -->
-                                <?php if (isset($item['rarita']) && $item['rarita'] > 0): ?>
-                                    <span class="rarita-badge rarita-<?php echo $item['rarita']; ?>">
-                                        <?php 
-                                        for ($i = 0; $i < $item['rarita']; $i++) {
-                                            echo '★';
-                                        }
-                                        ?>
-                                    </span>
-                                <?php endif; ?>
                                 
                                 <div class="card-progress">
                                     <?php if ($isCard): ?>
@@ -673,17 +659,6 @@ $countYugiohMancanti = countYugiohMancanti();
                                 <?php if (isset($serie['stato'])): ?>
                                     <span class="stato-badge <?php echo $serie['stato']; ?>">
                                         <?php echo "Stato: " . ucfirst(str_replace('_', ' ', $serie['stato'])); ?>
-                                    </span>
-                                <?php endif; ?>
-
-                                <!-- Badge Rarità -->
-                                <?php if (isset($serie['rarita']) && $serie['rarita'] > 0): ?>
-                                    <span class="rarita-badge rarita-<?php echo $serie['rarita']; ?>">
-                                        <?php 
-                                        for ($i = 0; $i < $serie['rarita']; $i++) {
-                                            echo '★';
-                                        }
-                                        ?>
                                     </span>
                                 <?php endif; ?>
                                 
@@ -864,16 +839,6 @@ $countYugiohMancanti = countYugiohMancanti();
                                     <?php echo "Stato: " . ucfirst(str_replace('_', ' ', $manga['stato'])); ?>
                                 </span>
                             <?php endif; ?>
-
-                            <?php if (isset($manga['rarita']) && $manga['rarita'] > 0): ?>
-                                    <span class="rarita-badge rarita-<?php echo $manga['rarita']; ?>">
-                                        <?php 
-                                        for ($i = 0; $i < $manga['rarita']; $i++) {
-                                            echo '★';
-                                        }
-                                        ?>
-                                    </span>
-                                <?php endif; ?>
                             
                             <div class="card-progress">
                                 <?php if ($volumi_actual == $manga['volumi_totali']): ?>
@@ -1672,20 +1637,7 @@ $countYugiohMancanti = countYugiohMancanti();
                                 <label for="da_prendere_subito">🎯 Da Prendere Subito</label>
                             </div>
                         </div>
-
-                        <!-- Campo Rarità - Solo per serie manga normali -->
-                        <div class="form-group hidden" id="rarita-group">
-                            <label>⭐ Rarità:</label>
-                            <div class="rarita-selector" id="rarita-selector-add">
-                                <span class="star" data-value="1">★</span>
-                                <span class="star" data-value="2">★</span>
-                                <span class="star" data-value="3">★</span>
-                                <span class="star" data-value="4">★</span>
-                                <span class="star" data-value="5">★</span>
-                            </div>
-                            <input type="hidden" id="rarita_value" name="rarita" value="">
-                        </div>
-                                                
+                        
                         <!-- Autore per Libri e Vinili/CD -->
                         <div class="form-group hidden" id="autore-group">
                             <label for="autore">Autore/Artista:</label>
@@ -1817,7 +1769,7 @@ $countYugiohMancanti = countYugiohMancanti();
         </div>
     </div>
 
-    <script src="../js/script.js?version=28"></script>
+    <script src="../js/script.js?version=15"></script>
     <script>
         // Enhanced form handling
         document.addEventListener("DOMContentLoaded", function() {

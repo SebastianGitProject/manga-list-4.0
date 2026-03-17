@@ -190,13 +190,12 @@ switch ($action) {
         $prezzo_medio = (float)$_POST['prezzo_medio'];
         $stato = sanitizeInput($_POST['stato'] ?? 'completo');
         $da_prendere_subito = isset($_POST['da_prendere_subito']) ? 1 : 0;
-        $rarita = isset($_POST['rarita']) && $_POST['rarita'] !== '' ? (int)$_POST['rarita'] : null;
         
         // Gestione categorie
         $categorie_input = sanitizeInput($_POST['categorie'] ?? '');
         $categorie = !empty($categorie_input) ? array_map('trim', explode(',', $categorie_input)) : null;
         
-        if (updateSerie($id, $titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato, $da_prendere_subito, $categorie, $rarita)) {
+        if (updateSerie($id, $titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato, $da_prendere_subito, $categorie)) {
             echo json_encode(['success' => true, 'message' => 'Serie aggiornata con successo']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Errore nell\'aggiornamento della serie']);
@@ -277,12 +276,11 @@ switch ($action) {
         $prezzo_medio = (float)$_POST['prezzo_medio'];
         $stato = sanitizeInput($_POST['stato'] ?? 'completo');
         $da_prendere_subito = isset($_POST['da_prendere_subito']) ? 1 : 0;
-        $rarita = isset($_POST['rarita']) && $_POST['rarita'] !== '' ? (int)$_POST['rarita'] : null;
         
         $categorie_input = sanitizeInput($_POST['categorie'] ?? '');
         $categorie = !empty($categorie_input) ? array_map('trim', explode(',', $categorie_input)) : null;
         
-        if (updateMangaStraniero($id, $titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato, $da_prendere_subito, $categorie, $rarita)) {
+        if (updateMangaStraniero($id, $titolo, $immagine_url, $data_pubblicazione, $volumi_totali, $prezzo_medio, $stato, $da_prendere_subito, $categorie)) {
             echo json_encode(['success' => true, 'message' => 'Manga straniero aggiornato con successo']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Errore nell\'aggiornamento']);
@@ -492,34 +490,6 @@ switch ($action) {
             echo json_encode(['success' => false, 'message' => 'Errore nell\'eliminazione']);
         }
         break;
-
-    case 'updateRarita':
-        if (!isset($_POST['serie_id'])) {
-            echo json_encode(['success' => false, 'message' => 'ID serie mancante']);
-            exit;
-        }
-        
-        $serie_id = (int)$_POST['serie_id'];
-        $rarita = isset($_POST['rarita']) && $_POST['rarita'] !== '' ? (int)$_POST['rarita'] : null;
-        
-        // Valida rarità (1-5 o NULL per rimuovere)
-        if ($rarita !== null && ($rarita < 1 || $rarita > 5)) {
-            echo json_encode(['success' => false, 'message' => 'Rarità deve essere tra 1 e 5']);
-            exit;
-        }
-        
-        $success = updateRarita($serie_id, $rarita);
-        
-        if ($success) {
-            echo json_encode([
-                'success' => true, 
-                'message' => 'Rarità aggiornata',
-                'rarita' => $rarita
-            ]);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Errore aggiornamento rarità']);
-        }
-        break;    
 
     default:
         echo json_encode(['success' => false, 'message' => 'Azione non valida: ' . $action]);
